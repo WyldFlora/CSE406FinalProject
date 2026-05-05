@@ -9,7 +9,7 @@ contract Vault {
     mapping(address => uint256) public balanceOf;
 
     address admin; //administrator
-    uint256 feePercent;
+    uint256 feePercent = 200; //2%
 
     // Governance Membership data structures
 
