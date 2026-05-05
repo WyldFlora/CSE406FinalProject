@@ -1,7 +1,7 @@
 class App {
     constructor() {
-        this.vaultAddress = "0xe28f8Aa7be21de65116e8CF35da5DDE02C624471";
-        this.tokenAddress = "0x56F60C1ddD65801E6fF663301805F8a14Db0aBEC";
+        this.vaultAddress = "0x6f4437beb66152576E32ce0385d0ae77663E0940";
+        this.tokenAddress = "0x134707701eBAA4506C264314229aFbC27eA1a834";
 
         this.vaultAbiLocation = "./Vault.json";
         this.tokenAbiLocation = "./Token.json";
@@ -201,13 +201,14 @@ class App {
                 return;
             }
 
-            const input = document.getElementById("amount").value;
+            const input = document.getElementById("withdrawShares").value;
 
             if (!input || isNaN(input) || Number(input) <= 0) {
                 alert("Enter valid amount");
                 return;
             }
-
+            
+            const SHARES_DECIMALS = 18;
             const shares = ethers.utils.parseUnits(input, this.decimals);
 
             this.setLoading(true);
