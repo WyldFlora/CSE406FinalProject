@@ -1,7 +1,7 @@
 class App {
     constructor() {
-        this.vaultAddress = "0xdF486eDFD71d2d08657feAf584DC85f12fb6dF90";
-        this.tokenAddress = "0x6801Ea3423f5B35eF2A1917a87a2Fa0edA53A5A3";
+        this.vaultAddress = "0xe28f8Aa7be21de65116e8CF35da5DDE02C624471";
+        this.tokenAddress = "0x56F60C1ddD65801E6fF663301805F8a14Db0aBEC";
 
         this.vaultAbiLocation = "./Vault.json";
         this.tokenAbiLocation = "./Token.json";
@@ -73,11 +73,7 @@ class App {
                 throw new Error("Contract initialization failed");
             }
 
-            try {
-                this.decimals = await this.token.decimals();
-            } catch {
-                this.decimals = 18;
-            }
+            this.decimals = 18;
 
             console.log("Connected:", this.userAddress);
 
@@ -154,9 +150,21 @@ class App {
                 return;
             }
 
-            const amount = ethers.utils.parseUnits(input, this.decimals);
+            if (this.decimals === undefined) {
+                alert("Token decimals not loaded");
+                return;
+            }
+
+            console.log("INPUT:", input);
+            console.log("DECIMALS:", this.decimals);
+
+            const amount = ethers.utils.parseUnits(input.toString(), this.decimals);
 
             this.setLoading(true);
+
+            console.log("User:", this.userAddress);
+            console.log("Vault:", this.vaultAddress);
+            console.log("Amount:", amount.toString());
 
             //check allowance
             const allowance = await this.token.allowance(
@@ -164,7 +172,7 @@ class App {
             );
 
             if (allowance.lt(amount)) {
-                const MAX = ethers.MaxUint256;
+                const MAX = ethers.constants.MaxUint256;
                 const approveTx = await this.token.approve(this.vaultAddress, MAX);
                 await approveTx.wait();
             }
