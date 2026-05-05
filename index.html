@@ -2,30 +2,65 @@
 <html>
 <head>
     <title>Vault DApp</title>
+    <style>
+    body {
+        font-family: Arial;
+        padding: 30px;
+        max-width: 500px;
+        margin: auto;
+    }
+
+    input {
+        padding: 8px;
+        width: 100%;
+    }
+
+    button {
+        padding: 10px;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    hr {
+        margin: 20px 0;
+    }
+</style>
 </head>
 <body>
 
     <h2>Vault DApp</h2>
-    <h3>Test Change</h3>
+
     <div id="overlay">
         <button id="connectBtn">Connect Wallet</button>
     </div>
 
+    <hr>
+
     <h3>Balances</h3>
     <p>Token Balance: <span id="tokenBalance">0</span></p>
     <p>Vault Shares: <span id="shareBalance">0</span></p>
+    <p>Membership: <span id="membershipStatus">-</span></p>
 
-    <input id="amount" placeholder="Enter amount" />
+    <hr>
 
+    <h3>Deposit</h3>
+    <input id="amount" placeholder="Enter amount to deposit" />
     <br><br>
-
     <button id="depositBtn">Deposit</button>
+
+    <hr>
+
+    <h3>Withdraw</h3>
+    <input id="withdrawShares" placeholder="Enter shares to withdraw" />
+    <p>You will receive (after fee): 
+        <span id="withdrawPreview">0</span>
+    </p>
     <button id="withdrawBtn">Withdraw</button>
 
-    <!-- ethers.js CDN -->
+    <hr>
+
     <script src="./ethers.min.js"></script>
 
-    <!-- your app -->
     <script src="app.js"></script>
 
 </body>

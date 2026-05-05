@@ -1,7 +1,7 @@
 class App {
     constructor() {
-        this.vaultAddress = "0xCFeE6FF691e583D28Ae525219f77Ff0C68F634b2";
-        this.tokenAddress = "0x21147AE330eA5000918036b5117636fB5e926970";
+        this.vaultAddress = "your vault address here";
+        this.tokenAddress = "your token address here";
 
         this.vaultAbiLocation = "./Vault.json";
         this.tokenAbiLocation = "./Token.json";
@@ -82,8 +82,10 @@ class App {
             console.log("Connected:", this.userAddress);
 
             document.getElementById("overlay").style.display = "none";
+            this.setupListeners();
 
             await this.loadBalances();
+            await this.loadMembership();
 
         } catch (err) {
             console.error("CONNECT ERROR:", err);
@@ -91,6 +93,18 @@ class App {
         }
     }
 
+    setupListeners() {
+        if (!window.ethereum) return;
+
+        window.ethereum.on("accountsChanged", async (accounts) => {
+            if (accounts.length > 0) {
+                this.userAddress = accounts[0];
+                await this.loadBalances();
+                await this.loadMembership();
+            }
+        });
+    }
+    
     // load balances
     async loadBalances() {
         try {
@@ -110,6 +124,20 @@ class App {
         }
     }
 
+    async loadMembership() {
+        try {
+            const memberhip = await this.vault._balanceOfMembershipToken(this.userAddress);
+
+            document.getElementById("membershipStatus").innerText = membership > 0 ? "Member" : "Not a member";
+        } catch (err) {
+            console.error("MEMBERSHIP ERROR:", err);
+        }
+    }
+
+    setLoading(state) {
+        document.getElementById("depositBtn").disabled = state;
+        document.getElemendById("withdrawBtn").disabled = state;
+    }
     
     // deposit
     async deposit() {
@@ -119,30 +147,40 @@ class App {
                 return;
             }
 
-            const amount = document.getElementById("amount").value;
+            const input = document.getElementById("amount").value;
 
-            if (!amount || isNaN(amount) || Number(amount) <= 0) {
+            if (!input || isNaN(input) || Number(input) <= 0) {
                 alert("Enter valid amount");
                 return;
             }
 
-            const parsed = ethers.utils.parseUnits(amount, this.decimals);
+            const amount = ethers.utils.parseUnits(input, this.decimals);
 
-            console.log("Depositing:", amount);
+            this.setLoading(true);
 
-            
-            await (await this.token.approve(this.vaultAddress, 0)).wait();
-            await (await this.token.approve(this.vaultAddress, parsed)).wait();
+            //check allowance
+            const allowance = await this.token.allowance(
+                this.userAddress, this.vaultAddress
+            );
 
-            const tx = await this.vault.deposit(parsed);
+            if (allowance.lt(amount)) {
+                const approveTx = await this.token.approve(this.vaultAddress, amount);
+                await approveTx.wait();
+            }
+
+            const tx = await this.vault.deposit(amount);
             await tx.wait();
 
-            alert("Deposit successful!");
-            await this.loadBalances();
+            alert("Deposit Successful!");
+            
+            await this.loadBalancces();
+            await this.loadMembership();
 
         } catch (err) {
             console.error("DEPOSIT ERROR:", err);
             alert(err?.reason || err?.message || "Deposit failed");
+        } finally {
+            this.setLoading(false);
         }
     }
 
@@ -154,24 +192,59 @@ class App {
                 return;
             }
 
-            const amount = document.getElementById("amount").value;
+            const input = document.getElementById("amount").value;
 
-            if (!amount || isNaN(amount) || Number(amount) <= 0) {
+            if (!input || isNaN(input) || Number(input) <= 0) {
                 alert("Enter valid amount");
                 return;
             }
 
-            const parsed = ethers.utils.parseUnits(amount, this.decimals);
+            const shares = ethers.utils.parseUnits(input, this.decimals);
 
-            const tx = await this.vault.withdraw(parsed);
+            this.setLoading(true);
+
+            const tx = await this.vault.withdraw(shares);
             await tx.wait();
 
             alert("Withdraw successful!");
             await this.loadBalances();
+            await this.loadMembership();
 
         } catch (err) {
             console.error("WITHDRAW ERROR:", err);
             alert(err?.reason || err?.message || "Withdraw failed");
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+
+    async previewWithdraw() {
+        try {
+            const input = document.getElementById("withdrawShares").value;
+
+            if (!input || isNaN(input) || Number(input) <= 0) {
+                document.getElementById("withdrawPreview").innerText = "0";
+                return;
+            }
+
+            const shares = ethers.utils.parseUnits(input, this.decimals);
+
+            const totalAssets = await this.token.balanceOf(this.vaultAddress);
+            const totalSupply = await this.vault.totalSupply();
+
+            const gross = shares.mul(totalAssets).div(totalSupply);
+
+            const feePercent = await this.vault.feePercent();
+            const fee = gross.mul(feePercent).div(10000);
+
+            const net = gross.sub(fee);
+
+            document.getElementById("withdrawPreview").innerText =
+                ethers.utils.formatUnits(net, this.decimals);
+
+        } catch (err) {
+            console.error("PREVIEW ERROR:", err);
         }
     }
 }
@@ -188,4 +261,6 @@ window.onload = () => {
 
     document.getElementById("withdrawBtn").onclick = () =>
         app.withdraw();
+    document.getElementById("withdrawShares").oninput = () =>
+        app.previewWithdraw();
 };
