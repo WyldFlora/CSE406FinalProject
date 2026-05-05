@@ -8,7 +8,7 @@ contract Vault {
     uint256 public totalSupply;
     mapping(address => uint256) public balanceOf;
 
-    address admin; //administrator
+    address admin = 0x7713821CD4c7d2d2a2cceEAB513b0d6eb9F94E5e; //administrator
     uint256 feePercent = 200; //2%
 
     // Governance Membership data structures

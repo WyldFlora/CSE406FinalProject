@@ -1,7 +1,7 @@
 class App {
     constructor() {
-        this.vaultAddress = "0x6f4437beb66152576E32ce0385d0ae77663E0940";
-        this.tokenAddress = "0x134707701eBAA4506C264314229aFbC27eA1a834";
+        this.vaultAddress = "0x913A6D7390CBE1C64541c80127Ff425037ac94CB";
+        this.tokenAddress = "0xf25118e84A7F08dCfdd0e4CF7D9452D23Ba2D4a1";
 
         this.vaultAbiLocation = "./Vault.json";
         this.tokenAbiLocation = "./Token.json";
