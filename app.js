@@ -1,7 +1,7 @@
 class App {
     constructor() {
-        this.vaultAddress = "your vault address here";
-        this.tokenAddress = "your token address here";
+        this.vaultAddress = "0xdF486eDFD71d2d08657feAf584DC85f12fb6dF90";
+        this.tokenAddress = "0x6801Ea3423f5B35eF2A1917a87a2Fa0edA53A5A3";
 
         this.vaultAbiLocation = "./Vault.json";
         this.tokenAbiLocation = "./Token.json";
@@ -111,7 +111,7 @@ class App {
             if (!this.token || !this.vault) return;
 
             const tokenBal = await this.token.balanceOf(this.userAddress);
-            const shares = await this.vault.shares(this.userAddress);
+            const shares = await this.vault.balanceOf(this.userAddress);
 
             document.getElementById("tokenBalance").innerText =
                 ethers.utils.formatUnits(tokenBal, this.decimals);
@@ -126,7 +126,7 @@ class App {
 
     async loadMembership() {
         try {
-            const memberhip = await this.vault._balanceOfmembershipToken(this.userAddress);
+            const membership = await this.vault._balanceOfmembershipToken(this.userAddress);
 
             document.getElementById("membershipStatus").innerText = membership > 0 ? "Member" : "Not a member";
         } catch (err) {
