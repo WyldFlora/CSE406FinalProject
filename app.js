@@ -126,7 +126,7 @@ class App {
 
     async loadMembership() {
         try {
-            const memberhip = await this.vault._balanceOfMembershipToken(this.userAddress);
+            const memberhip = await this.vault._balanceOfmembershipToken(this.userAddress);
 
             document.getElementById("membershipStatus").innerText = membership > 0 ? "Member" : "Not a member";
         } catch (err) {
@@ -136,7 +136,7 @@ class App {
 
     setLoading(state) {
         document.getElementById("depositBtn").disabled = state;
-        document.getElemendById("withdrawBtn").disabled = state;
+        document.getElementById("withdrawBtn").disabled = state;
     }
     
     // deposit
@@ -164,7 +164,8 @@ class App {
             );
 
             if (allowance.lt(amount)) {
-                const approveTx = await this.token.approve(this.vaultAddress, amount);
+                const MAX = ethers.MaxUint256;
+                const approveTx = await this.token.approve(this.vaultAddress, MAX);
                 await approveTx.wait();
             }
 
@@ -173,7 +174,7 @@ class App {
 
             alert("Deposit Successful!");
             
-            await this.loadBalancces();
+            await this.loadBalances();
             await this.loadMembership();
 
         } catch (err) {
